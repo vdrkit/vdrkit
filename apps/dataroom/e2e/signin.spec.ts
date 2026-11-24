@@ -175,7 +175,15 @@ test('viewer signs out after idle time; reading counts as activity', async ({ pa
   await page.clock.install();
   await page.goto(`/rooms/${ws}/view/${doc.nodeId}`);
   await expect(page.locator('#p1 img')).toBeVisible({ timeout: 30_000 });
-  await page.waitForTimeout(500);
+  // the guard counts nothing until it has the room's limit
+  await expect.poll(() => page.locator('#canvas').evaluate(async (c) => {
+    const was = localStorage.getItem('vdrkit-last-activity');
+    await new Promise<void>((done) => {
+      c.addEventListener('scroll', () => done(), { once: true });
+      c.scrollTop = c.scrollTop === 0 ? 100 : 0;
+    });
+    return localStorage.getItem('vdrkit-last-activity') !== was;
+  }), { timeout: 30_000 }).toBe(true);
 
   await page.clock.fastForward('20:00');
   // a scroll in the pages, not on the window; wait for the event before the clock moves on

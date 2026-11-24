@@ -250,8 +250,18 @@ export async function signIn(s, page, email, secret) {
   await page.goto('/sign-in');
   await page.locator('#f-email').fill(email);
   const since = Date.now() - 2000;
+  const asked = Date.now();
+  const answer = page.waitForResponse((r) => r.url().includes('/v1/auth/sign-in/magic-link'), { timeout: 60_000 })
+    .then((r) => `${r.status()} after ${Date.now() - asked} ms`, () => 'no answer within 60 s');
   await page.getByRole('button', { name: 'Email me a link and a code' }).click();
-  await page.getByRole('heading', { name: 'Check your email' }).waitFor();
+  try {
+    await page.getByRole('heading', { name: 'Check your email' }).waitFor({ timeout: 60_000 });
+  } catch {
+    const shown = await page.locator('.hint.err').textContent({ timeout: 1000 }).catch(() => null);
+    throw new Error(`No "Check your email" page. Sign-in email request: ${await answer}. Page: ${page.url()}${shown ? `, showing "${shown}"` : ''}`);
+  }
+  const took = Date.now() - asked;
+  if (took > 5000) console.log(`[drill] the sign-in email request took ${took} ms (${await answer})`);
   const m = await mail(s, email, /\d{3} ?\d{3}/, since);
   await typeCode(page, /(\d{3}) ?(\d{3})/.exec(m.Subject).slice(1).join(''));
   await page.getByRole('button', { name: 'Continue' }).click();
