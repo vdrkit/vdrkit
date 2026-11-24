@@ -122,7 +122,7 @@ services:
       api: { condition: service_started }
 
   gotenberg:
-    image: gotenberg/gotenberg:8.17.3
+    image: gotenberg/gotenberg:9.9.1
     restart: unless-stopped
     command: ["gotenberg", "--api-timeout=120s"]
     networks: [internal]            # reachable from the API and the worker only, no outbound access
@@ -135,7 +135,7 @@ services:
 
   clamav:
     profiles: [clamav]
-    image: clamav/clamav:1.4.3
+    image: clamav/clamav:1.5.4
     restart: unless-stopped
     # MaxFileSize matters: without it clamd says OK to files it never scanned.
     # Raise CLAMAV_MAX_BYTES only together with these; ClamAV can't scan over 2 GB.
@@ -152,7 +152,7 @@ services:
     logging: *logging
 
   proxy:
-    image: caddy:2.9.1
+    image: caddy:2.11.9
     restart: unless-stopped
     ports:
       - "${BIND_ADDRESS:-0.0.0.0}:${HTTP_PORT:-80}:80"
@@ -174,7 +174,7 @@ services:
 
   postgres:
     profiles: [postgres]
-    image: pgvector/pgvector:0.8.0-pg17
+    image: pgvector/pgvector:0.8.7-pg17
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
@@ -201,7 +201,7 @@ services:
   #   docker compose run --rm backup now | list | verify NAME
   backup:
     profiles: [backup]
-    image: pgvector/pgvector:0.8.0-pg17
+    image: pgvector/pgvector:0.8.7-pg17
     restart: unless-stopped
     init: true
     security_opt: ["no-new-privileges:true"]

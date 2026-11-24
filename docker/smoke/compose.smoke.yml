@@ -11,7 +11,7 @@ services:
     volumes: ["./ca.pem:/smoke/ca.pem:ro"]
 
   mailpit:
-    image: axllent/mailpit:v1.24.1
+    image: axllent/mailpit:v1.34.0
     restart: "no"
     environment:
       MP_SMTP_TLS_CERT: /certs/mailpit.pem
