@@ -1,0 +1,40 @@
+# One origin for screens and API: first-party cookies, no CORS
+# SITE_ADDRESS from .env; localhost gets a cert from Caddy's local CA
+
+# all api replicas (API_REPLICAS), resolved by name
+(api) {
+	reverse_proxy {
+		dynamic a {
+			name api
+			port 3001
+			refresh 10s
+		}
+		lb_policy least_conn
+		# only the screens' server may mark a request as a render, and it reaches the api directly
+		header_up -x-vdrkit-render
+	}
+}
+
+{$SITE_ADDRESS} {
+	encode zstd gzip
+	# "?" = only if the response has none; keeps the per-page CSP nonce
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		?Content-Security-Policy "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+		?X-Content-Type-Options "nosniff"
+		?Referrer-Policy "same-origin"
+		?X-Frame-Options "DENY"
+		?Cross-Origin-Opener-Policy "same-origin"
+		-Server
+		-X-Powered-By
+	}
+	handle /v1/* {
+		import api
+	}
+	handle /health {
+		import api
+	}
+	handle {
+		reverse_proxy web:3000
+	}
+}

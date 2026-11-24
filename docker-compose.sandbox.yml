@@ -1,0 +1,61 @@
+# Public sandbox, reset daily at 03:00 UTC. Own .env, database and volumes only.
+#   docker compose -f docker-compose.yml -f docker-compose.sandbox.yml up -d
+# SMTP_* and MAIL_FROM must be unset; keep STORAGE_DRIVER=local (the reset wipes the files volume)
+
+x-sandbox: &sandbox
+  image: ${VDRKIT_IMAGE:-ghcr.io/vdrkit/vdrkit}:${VDRKIT_TAG:?Set VDRKIT_TAG in .env to the version to run, for example 1.0.0}
+  init: true
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: [ALL]
+  # reset truncates as owner, loads demo as vdrkit_app
+  environment: &sandbox-env
+    VDRKIT_SANDBOX: "1"
+    MIGRATION_DATABASE_URL: ${MIGRATION_DATABASE_URL:-postgres://vdrkit_owner:${VDRKIT_OWNER_PASSWORD:-}@postgres:5432/vdrkit}
+    DATABASE_URL: ${DATABASE_URL:-postgres://vdrkit_app:${VDRKIT_APP_PASSWORD:-}@postgres:5432/vdrkit}
+    VDRKIT_MASTER_KEY: ${VDRKIT_MASTER_KEY:-}
+    STORAGE_DRIVER: local
+    STORAGE_LOCAL_DIR: /data/storage
+    GOTENBERG_URL: http://gotenberg:3000
+    CLAMAV_HOST: ${CLAMAV_HOST-clamav}
+  volumes: [files:/data/storage]
+  networks: [default, db, internal]
+  logging:
+    driver: json-file
+    options: { max-size: "10m", max-file: "5" }
+
+services:
+  # first run renders every demo page through Gotenberg: a few minutes
+  sandbox-init:
+    <<: *sandbox
+    command: ["sandbox-init"]
+    restart: "no"
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      gotenberg: { condition: service_healthy }
+      clamav: { condition: service_healthy, required: false }
+
+  # or from host cron:
+  #   0 3 * * *  cd /srv/vdrkit && docker compose -f docker-compose.yml -f docker-compose.sandbox.yml run --rm sandbox-init sandbox-reset
+  sandbox-scheduler:
+    <<: *sandbox
+    command: ["sandbox-scheduler"]
+    restart: unless-stopped
+    depends_on:
+      sandbox-init: { condition: service_completed_successfully }
+      gotenberg: { condition: service_started }
+
+  api:
+    environment:
+      VDRKIT_SANDBOX: "1"
+    depends_on:
+      sandbox-init: { condition: service_completed_successfully }
+
+  worker:
+    environment:
+      VDRKIT_SANDBOX: "1"
+    depends_on:
+      sandbox-init: { condition: service_completed_successfully }
+
+  web:
+    environment:
+      VDRKIT_SANDBOX: "1"

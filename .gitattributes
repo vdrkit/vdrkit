@@ -1,0 +1,6 @@
+# Keep LF line endings in the repository and the working copy, so shell scripts
+# and SQL run unchanged in Linux containers built from a Windows checkout.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.pdf binary

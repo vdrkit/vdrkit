@@ -1,0 +1,85 @@
+name: Bug report
+description: Something in VDRkit doesn't work the way it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this. If it's a security problem, please don't file it here; report it privately as [SECURITY.md](https://github.com/vdrkit/vdrkit/security/policy) describes.
+
+        Don't paste real deal documents, personal data, passwords, keys or tokens, and strip them from logs and screenshots.
+  - type: checkboxes
+    id: not-security
+    attributes:
+      label: Not a security problem
+      options:
+        - label: This bug doesn't let anyone see, change or delete anything they shouldn't, and doesn't weaken sign-in.
+          required: true
+  - type: input
+    id: version
+    attributes:
+      label: VDRkit version
+      description: From Site settings or VDRKIT_TAG in your .env, or the commit for a source checkout.
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How VDRkit is installed
+      options:
+        - Docker Compose with the bundled Postgres
+        - Docker Compose with Neon
+        - Docker Compose with another Postgres
+        - Development stack (pnpm dev:stack)
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: role
+    attributes:
+      label: Your role in the room
+      options:
+        - Site admin
+        - Room admin
+        - Contributor or publisher
+        - Seller observer
+        - Bidder lead
+        - Bidder member
+        - Not signed in
+        - Not relevant
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and operating system
+      placeholder: Firefox 155 on Windows 11
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Start from a known state. The development stack's demo data is ideal, because we can follow your steps exactly.
+      placeholder: |
+        1. Sign in as Jan de Vries (Bidder A lead)
+        2. Open 2.4 Material contracts
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened
+      description: Any message on screen. Add a screenshot if it helps.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: "Output of docker compose logs --since 1h api worker, with secrets, names and addresses removed."
+      render: text

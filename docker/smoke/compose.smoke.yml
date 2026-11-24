@@ -1,0 +1,24 @@
+# smoke test only: Mailpit as the SMTP server (STARTTLS, throwaway CA from smoke.mjs)
+
+services:
+  api:
+    environment:
+      NODE_EXTRA_CA_CERTS: /smoke/ca.pem
+    volumes: ["./ca.pem:/smoke/ca.pem:ro"]
+  worker:
+    environment:
+      NODE_EXTRA_CA_CERTS: /smoke/ca.pem
+    volumes: ["./ca.pem:/smoke/ca.pem:ro"]
+
+  mailpit:
+    image: axllent/mailpit:v1.24.1
+    restart: "no"
+    environment:
+      MP_SMTP_TLS_CERT: /certs/mailpit.pem
+      MP_SMTP_TLS_KEY: /certs/mailpit-key.pem
+      MP_SMTP_REQUIRE_STARTTLS: "true"
+      MP_MAX_MESSAGES: "500"
+    volumes:
+      - ./mailpit.pem:/certs/mailpit.pem:ro
+      - ./mailpit-key.pem:/certs/mailpit-key.pem:ro
+    ports: ["127.0.0.1:${SMOKE_MAIL_PORT:-4122}:8025"]

@@ -1,0 +1,151 @@
+/* Scoped to .vroot: the viewer's class names (.page, .info, .right) are generic. */
+
+.vroot { --canvas: #E4E9EE; --pw: 760px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .vroot { --canvas: #0B1016; } }
+:root[data-theme="dark"] .vroot { --canvas: #0B1016; }
+
+.vroot .btn svg, .vroot .icon-btn svg { stroke-linecap: round; stroke-linejoin: round; }
+.vroot .btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.7; }
+.vroot .viewer { display: grid; grid-template-rows: auto minmax(0, 1fr); height: 100vh; height: 100dvh; }
+
+/* Top bar */
+.vroot .vbar { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; min-height: 58px; padding-block: 8px; border-bottom: 1px solid var(--line); background: var(--surface);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.vroot .back { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 10px 0 6px; border-radius: 9px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 500; white-space: nowrap; }
+.vroot .back:hover { background: var(--surface-2); color: var(--fg); }
+.vroot .back svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+.vroot .vsep { width: 1px; height: 24px; background: var(--line); }
+.vroot .doct { display: flex; align-items: baseline; gap: 10px; min-width: 0; flex: 1 1 280px; }
+.vroot .doct .ix { font: 600 14px var(--mono); color: var(--muted); white-space: nowrap; }
+.vroot .doct h1 { font-size: 16px; line-height: 22px; margin: 0; font-weight: 700; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vroot .doct .vtag { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.vroot .pager { display: flex; align-items: center; gap: 4px; font-size: 13px; color: var(--muted); white-space: nowrap; }
+.vroot .pager b { color: var(--fg); font-variant-numeric: tabular-nums; }
+.vroot .pager input { width: 46px; height: 30px; border: 1px solid var(--field-line); border-radius: 7px; background: var(--surface); color: var(--fg); text-align: center; font: 600 13px var(--font); font-variant-numeric: tabular-nums; }
+.vroot .zoom { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+.vroot .zoom button { width: 32px; height: 30px; border: 0; background: transparent; color: var(--muted); cursor: pointer; font: 600 15px var(--font); }
+.vroot .zoom button:hover { background: var(--surface-2); color: var(--fg); }
+.vroot .zoom span { font: 600 12px var(--font); color: var(--muted); min-width: 44px; text-align: center; font-variant-numeric: tabular-nums; }
+.vroot .vacts { display: flex; align-items: center; gap: 6px; }
+.vroot .docnav { display: flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+.vroot .docnav button { height: 32px; padding: 0 10px; border: 0; background: transparent; color: var(--fg); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font: 600 12.5px var(--font); }
+.vroot .docnav button + button { border-left: 1px solid var(--line); }
+.vroot .docnav button:hover { background: var(--surface-2); }
+.vroot .docnav svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+.vroot .docnav kbd { font: 500 10.5px var(--mono); color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+.vroot .docnav button:disabled { color: var(--subtle); cursor: default; background: transparent; }
+.vroot .icon-btn.on, .vroot .btn.secondary.on { background: var(--accent-tint); color: var(--accent-text); border-color: transparent; }
+
+/* Page strip, pages, details */
+.vroot .vbody { display: grid; grid-template-columns: 112px minmax(0, 1fr) 320px; min-height: 0; }
+.vroot .vbody.no-info { grid-template-columns: 112px minmax(0, 1fr); }
+.vroot .vbody.no-info .info { display: none; }
+.vroot .strip { overflow-y: auto; border-right: 1px solid var(--line); background: var(--surface); padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.vroot .th { border: 0; background: none; padding: 0; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; font: 500 11px var(--font); color: var(--muted); font-variant-numeric: tabular-nums; }
+.vroot .th i { display: block; width: 76px; aspect-ratio: 1 / 1.414; background: #FFFFFF; border: 1px solid var(--line-strong); border-radius: 3px; background-image: repeating-linear-gradient(to bottom, transparent 0 9px, #E3E8EE 9px 11px); background-size: 60px 100%; background-repeat: no-repeat; background-position: center 14px; }
+.vroot .th.on i { outline: 2px solid var(--accent); outline-offset: 2px; }
+.vroot .th.on { color: var(--accent-text); font-weight: 700; }
+.vroot .th i.has { background-image: none; aspect-ratio: auto; overflow: hidden; }
+.vroot .th i img { display: block; width: 100%; height: auto; }
+
+/* PageView keeps the reading position itself; Safari has no scroll anchoring */
+.vroot .canvas { overflow-y: auto; background: var(--canvas); padding: 24px 24px 120px; position: relative; scroll-behavior: smooth; overflow-anchor: none; }
+.vroot .pages { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.vroot .page { position: relative; width: min(var(--pw), 100%); aspect-ratio: var(--ar, 1 / 1.414); background: #FFFFFF; color: #1A2531; box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 8px 24px rgba(0,0,0,.08); border-radius: 2px; overflow: hidden; }
+.vroot .page img { display: block; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; }
+.vroot .page .pfail { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; font: 13px var(--font); color: #626E7B; }
+
+.vroot .ended { position: absolute; inset: 0; display: grid; place-items: center; background: color-mix(in srgb, var(--canvas) 80%, transparent); backdrop-filter: blur(6px); z-index: 2; padding: 16px; }
+.vroot .ended .box { background: var(--surface); border: 1px solid var(--line-strong); border-radius: 14px; box-shadow: var(--shadow-md); padding: 22px; max-width: 420px; display: flex; flex-direction: column; gap: 10px; }
+.vroot .ended h2 { margin: 0; font-size: 18px; line-height: 24px; }
+.vroot .ended p { margin: 0; font-size: 13.5px; line-height: 20px; color: var(--muted); }
+.vroot .ended a.btn { text-decoration: none; }
+
+.vroot .nopv { display: grid; place-items: center; padding: 56px 0 24px; }
+.vroot .nopv .box { background: var(--surface); border: 1px solid var(--line-strong); border-radius: 14px; box-shadow: var(--shadow-md); padding: 26px; max-width: 460px; width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.vroot .nopv h2 { margin: 0; font-size: 18px; line-height: 24px; }
+.vroot .nopv p { margin: 0; font-size: 13.5px; line-height: 20px; color: var(--muted); }
+.vroot .nopv .ficon { position: relative; width: 44px; height: 44px; color: var(--muted); }
+.vroot .nopv .ficon svg { width: 44px; height: 44px; stroke: currentColor; fill: none; stroke-width: 1.2; stroke-linejoin: round; display: block; }
+.vroot .nopv .ficon b { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font: 700 8.5px var(--mono); letter-spacing: .3px; color: var(--fg); }
+.vroot .nopv .act { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 6px; }
+.vroot .nopv .err { color: var(--danger); }
+
+.vroot .nextdoc { width: min(var(--pw), 100%); margin: 6px auto 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 16px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.vroot .nextdoc span { font-size: 12.5px; color: var(--muted); }
+.vroot .nextdoc b { display: block; font-size: 14px; color: var(--fg); }
+.vroot .nextdoc a.btn { text-decoration: none; }
+
+/* Details panel */
+.vroot .info { border-left: 1px solid var(--line); background: var(--surface); overflow-y: auto; padding: 18px 18px 24px; display: flex; flex-direction: column; gap: 18px; }
+.vroot .info h2 { font-size: 11px; letter-spacing: 1.3px; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; font-weight: 600; }
+.vroot .kv { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 6px 12px; font-size: 13px; line-height: 19px; margin: 0; }
+.vroot .kv dt { color: var(--muted); }
+.vroot .kv dd { margin: 0; }
+.vroot .kv .mono { font-family: var(--mono); font-size: 12.5px; }
+.vroot .right { border-radius: 10px; padding: 12px; background: var(--surface-2); font-size: 13px; line-height: 19px; display: flex; flex-direction: column; gap: 8px; }
+.vroot .right .lvl { align-self: flex-start; font-size: 12px; font-weight: 600; line-height: 22px; padding: 0 9px; border-radius: 6px; color: var(--accent-text); background: color-mix(in srgb, var(--accent) 11%, var(--surface)); }
+/* l30/l40: Print and Encrypted PDF */
+.vroot .right .lvl.l40 { background: color-mix(in srgb, var(--accent) 21%, var(--surface)); }
+.vroot .right .lvl.l50 { background: color-mix(in srgb, var(--accent) 34%, var(--surface)); }
+.vroot .right .lvl.l60 { background: var(--accent); color: var(--accent-ink); }
+.vroot .near { display: flex; flex-direction: column; }
+.vroot .near a { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 8px; align-items: center; border: 0; background: none; text-align: left; padding: 6px 8px; border-radius: 7px; cursor: pointer; font: 500 13px var(--font); color: var(--fg); text-decoration: none; }
+.vroot .near a:hover { background: var(--surface-2); }
+.vroot .near a.on { background: var(--accent-tint); color: var(--accent-text); font-weight: 600; }
+.vroot .near .ix { font: 500 11.5px var(--mono); color: var(--muted); }
+.vroot .near .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vroot .near .new { font-size: 10.5px; font-weight: 700; color: var(--accent-text); margin-left: 6px; }
+.vroot .near .st { font-size: 10.5px; font-weight: 700; color: var(--muted); }
+/* Close button and scrim only matter where the panel covers the page */
+.vroot .ihead { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.vroot .iclose { display: none; margin: -8px -8px 0 0; }
+.vroot .iscrim { display: none; }
+.vroot .adm { display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 19px; }
+.vroot .adm a { color: var(--accent-text); font-weight: 600; text-decoration: none; }
+.vroot .adm a:hover { text-decoration: underline; }
+
+.vroot .mscrim { position: fixed; inset: 0; z-index: 41; background: rgba(10, 18, 28, .4); }
+.vroot .mpanel { position: fixed; z-index: 42; top: 0; bottom: 0; left: 0; width: min(272px, 88vw); background: var(--surface); border-right: 1px solid var(--line-strong); box-shadow: var(--shadow-md); display: flex; flex-direction: column; gap: 14px; padding: 14px 12px 12px; padding-left: max(12px, env(safe-area-inset-left, 0px)); overflow-y: auto; }
+.vroot .mh { display: flex; gap: 8px; align-items: flex-start; }
+.vroot .mh .room { flex: 1; }
+.vroot .mpanel .user { margin-top: auto; }
+@media (prefers-reduced-motion: no-preference) { .vroot .mpanel { animation: vdr-slidein .16s ease-out; } @keyframes vdr-slidein { from { transform: translateX(-16px); opacity: .6; } to { transform: none; opacity: 1; } } }
+
+/* Download */
+.vroot .dl { position: absolute; z-index: 30; top: calc(100% + 6px); right: 0; width: 320px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 12px; box-shadow: var(--shadow-md); padding: 14px; display: flex; flex-direction: column; gap: 10px; font-size: 13px; line-height: 19px; }
+.vroot .dl b { font-size: 14px; }
+.vroot .dl .opt { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; cursor: pointer; }
+.vroot .dl .opt:has(input:checked) { border-color: var(--accent); background: var(--accent-tint); }
+.vroot .dl .opt input { margin: 3px 0 0; accent-color: var(--accent); }
+.vroot .dl .opt small { display: block; color: var(--muted); font-size: 12px; line-height: 17px; }
+.vroot .dl .row { display: flex; gap: 8px; justify-content: flex-end; }
+.vroot .dl .err { color: var(--danger); }
+.vroot .dlwrap { position: relative; }
+
+.vroot .toast { position: fixed; z-index: 45; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 84px); display: flex; gap: 12px; align-items: flex-start; background: var(--fg); color: var(--surface); border-radius: 12px; padding: 12px 16px; box-shadow: var(--shadow-md); max-width: min(460px, calc(100vw - 32px)); }
+.vroot .toast i { width: 20px; height: 20px; border-radius: 50%; background: var(--ok); flex: none; display: grid; place-items: center; color: var(--surface); font-style: normal; font-size: 12px; font-weight: 800; }
+.vroot .toast b { display: block; font-size: 13.5px; }
+.vroot .toast span { font-size: 12.5px; opacity: .8; }
+
+@media (max-width: 1180px) { .vroot .vbody, .vroot .vbody.no-info { grid-template-columns: minmax(0, 1fr) 300px; } .vroot .vbody.no-info { grid-template-columns: minmax(0, 1fr); } .vroot .strip { display: none; } }
+@media (max-width: 900px) {
+  .vroot .vbody, .vroot .vbody.no-info { grid-template-columns: minmax(0, 1fr); }
+  .vroot .info { position: fixed; z-index: 35; top: 0; right: 0; bottom: 0; width: min(340px, 100%); box-shadow: var(--shadow-md); }
+  .vroot .vbody.no-info .info { display: none; }
+  .vroot .iclose { display: inline-grid; }
+  .vroot .iscrim { display: block; position: fixed; inset: 0; z-index: 34; background: rgba(10, 18, 28, .4); }
+  /* width not known yet: start closed on phones */
+  .vroot .vbody.info-auto .info { display: none; }
+  .vroot .zoom, .vroot .vsep { display: none; }
+  .vroot .canvas { padding: 12px 10px 120px; }
+}
+@media (max-width: 560px) {
+  .vroot .docnav kbd, .vroot .docnav .t, .vroot .back .t { display: none; }
+  .vroot #info-btn { font-size: 0; gap: 0; padding: 0 9px; }
+  .vroot .doct { flex-basis: 100%; order: -1; flex-wrap: wrap; row-gap: 0; }
+  .vroot .doct .vtag { white-space: normal; }
+  /* A sheet at the bottom: a 320px popover under the button runs off screen */
+  .vroot .dl { position: fixed; top: auto; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px));
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); width: auto; z-index: 46; }
+}

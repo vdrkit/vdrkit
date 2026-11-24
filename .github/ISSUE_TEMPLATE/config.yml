@@ -1,0 +1,9 @@
+# security link first: vulnerabilities go to SECURITY.md, never a public issue
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/vdrkit/vdrkit/security/policy
+    about: Report it privately as SECURITY.md describes, not in an issue.
+  - name: Installation guide
+    url: https://github.com/vdrkit/vdrkit/blob/main/docs/install.md
+    about: Setup, DNS, email, backups and upgrades.

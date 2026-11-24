@@ -1,0 +1,58 @@
+/* next/font generates the family names; keep the fallbacks after them. */
+:root {
+  --font: var(--font-schibsted), "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
+  --mono: var(--font-geist-mono), "Geist Mono", ui-monospace, "Cascadia Mono", monospace;
+}
+
+.crumbs a { padding: 2px 3px; margin: 0 -3px; border-radius: 5px; color: var(--muted); text-decoration: none; }
+.crumbs a:hover { color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; }
+.crumbs a:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.avatar.inv { background: var(--neutral-bg); color: var(--neutral); }
+
+/* Picked from data-theme, so the icon is right on first paint. */
+.theme-btn .ti { display: none; }
+:root[data-theme="light"] .theme-btn .ti-sun,
+:root[data-theme="dark"] .theme-btn .ti-moon,
+:root:not([data-theme]) .theme-btn .ti-sys { display: contents; }
+.theme-menu { min-width: 210px; }
+.theme-menu button { display: flex; align-items: center; gap: 10px; }
+.theme-menu .tm-ico, .theme-menu .tm-check { width: 16px; height: 16px; display: grid; place-items: center; flex: none; color: var(--muted); }
+.theme-menu .tm-label { flex: 1; }
+.theme-menu svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.theme-menu .tm-check { color: var(--accent-text); }
+.theme-menu .tm-check svg { stroke-width: 2.2; }
+
+.head h1 .ix { font: 600 20px var(--mono); color: var(--muted); letter-spacing: 0; margin-right: 10px; }
+
+/* A span, not <n>: React warns about unknown tags. */
+.qs-opt .qs-n { font: 500 12px var(--mono); color: var(--muted); }
+
+/* Below the phone drawer (z-index 80). Height is --see-as-h. */
+.see-as-bar { position: sticky; top: 0; z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px;
+  padding: 9px max(16px, env(safe-area-inset-right, 0px)) 9px max(16px, env(safe-area-inset-left, 0px));
+  background: var(--warn-bg); color: var(--fg); border-bottom: 1px solid var(--line-strong); font: 400 13.5px/1.4 var(--font); }
+.see-as-bar > svg { color: var(--warn); flex: none; }
+.see-as-bar .grow { flex: 1 1 260px; min-width: 0; }
+.see-as-bar b { font-weight: 600; }
+.see-as-bar .btn { flex: none; }
+@media (min-width: 901px) { :root.see-as .side { top: var(--see-as-h, 0px); height: calc(100vh - var(--see-as-h, 0px)); } }
+@media (max-width: 900px) { :root.see-as .top { top: var(--see-as-h, 0px); } }
+:root.see-as .vroot .viewer { height: calc(100vh - var(--see-as-h, 0px)); height: calc(100dvh - var(--see-as-h, 0px)); }
+.fmenu .fmenu-h { margin: 6px 10px 2px; font: 600 11.5px var(--font); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.fmenu .fmenu-h:not(:first-child) { margin-top: 10px; }
+.fmenu button:disabled { cursor: default; color: var(--muted); }
+.fmenu button:disabled:hover { background: none; }
+
+.side .org img { display: block; height: 36px; width: auto; max-width: 180px; }
+.side .org .org-dark { display: none; }
+:root[data-theme="dark"] .side .org .org-dark { display: block; }
+:root[data-theme="dark"] .side .org .org-light { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .side .org .org-dark { display: block; }
+  :root:not([data-theme="light"]) .side .org .org-light { display: none; }
+}
+
+.site-notice { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 10px 14px; border-radius: 10px; background: var(--danger-bg); color: var(--danger); font-size: 13px; line-height: 19px; max-width: 1680px; }
+.site-notice b { font-weight: 700; }
+.site-notice a { color: inherit; font-weight: 600; }

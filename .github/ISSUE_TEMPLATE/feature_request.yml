@@ -1,0 +1,43 @@
+name: Feature request
+description: Suggest a new feature or a change to an existing one.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please search the open issues first; someone may have asked already. Q&A, passkeys, encrypted PDF and print, and redaction are already planned for release 2.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do, and what stops you today? Describe the deal situation if it helps.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you propose
+      description: How VDRkit could handle it. Screens, button wording and who may use it all help.
+    validations:
+      required: true
+  - type: dropdown
+    id: who
+    attributes:
+      label: Who would use it
+      multiple: true
+      options:
+        - Site admins
+        - Room admins
+        - Contributors and publishers
+        - Seller observers
+        - Bidders
+        - Self-hosters and operators
+  - type: textarea
+    id: permissions
+    attributes:
+      label: Effect on access and the audit trail
+      description: Would this change who can see or do something, or what gets logged? How?
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered

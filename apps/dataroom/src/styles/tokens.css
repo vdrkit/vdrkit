@@ -1,0 +1,40 @@
+/* Light, then dark for the system setting, then dark for an explicit choice. Check colour changes against WCAG AA contrast. */
+:root {
+  --font: "Schibsted Grotesk", "Segoe UI", system-ui, sans-serif;
+  --mono: "Geist Mono", ui-monospace, "Cascadia Mono", monospace;
+  --bg: #F4F7FA; --surface: #FFFFFF; --surface-2: #F4F7FA; --line: #E3E9EF; --line-strong: #CFD8E1;
+  --fg: #1A2531; --muted: #626E7B; --subtle: #7D8B9B; --field-line: #7D8B9B;
+  --accent: #13627A; --accent-hover: #0F5568; --accent-ink: #FFFFFF; --accent-text: #0F5568; --accent-tint: #EAF1F3;
+  --ok: #1F7A4D; --ok-bg: #E4F3EA; --warn: #8F5600; --warn-bg: #FBEFD9; --danger: #B42318; --danger-bg: #FDECEA;
+  --info: #3A57A3; --info-bg: #E7EDFA; --neutral: #5D6B79; --neutral-bg: #EDF1F5;
+  --shadow-sm: 0 1px 2px rgba(16,30,45,.06); --shadow-md: 0 2px 6px rgba(16,30,45,.08), 0 8px 24px rgba(16,30,45,.10);
+  --g-a: #4C8FA5; --g-b: #8E7AB5; --g-c: #C08A3E; --g-s: #6A9A6F;
+  --logo-ink: #2E2440; --logo-mark: #B5543C;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0F151C; --surface: #151D26; --surface-2: #1A2430; --line: #223040; --line-strong: #2E3F52;
+    --fg: #E4EBF2; --muted: #909EAC; --subtle: #6E7F94; --field-line: #6E7F94;
+    --accent: #5BB8D4; --accent-hover: #7CCBE2; --accent-ink: #062029; --accent-text: #7CCBE2; --accent-tint: #213744;
+    --ok: #73D3A0; --ok-bg: #16302A; --warn: #F0BE6A; --warn-bg: #33291A; --danger: #F28B82; --danger-bg: #3A1F22;
+    --info: #9DB4F2; --info-bg: #1F2840; --neutral: #A3B0BE; --neutral-bg: #1F2A36;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.3); --shadow-md: 0 2px 6px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.35);
+    --g-a: #6FB0C6; --g-b: #A996D0; --g-c: #D8A65C; --g-s: #8BBE90;
+    --logo-ink: #EDE6F5; --logo-mark: #E08A6E;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0F151C; --surface: #151D26; --surface-2: #1A2430; --line: #223040; --line-strong: #2E3F52;
+  --fg: #E4EBF2; --muted: #909EAC; --subtle: #6E7F94; --field-line: #6E7F94;
+  --accent: #5BB8D4; --accent-hover: #7CCBE2; --accent-ink: #062029; --accent-text: #7CCBE2; --accent-tint: #213744;
+  --ok: #73D3A0; --ok-bg: #16302A; --warn: #F0BE6A; --warn-bg: #33291A; --danger: #F28B82; --danger-bg: #3A1F22;
+  --info: #9DB4F2; --info-bg: #1F2840; --neutral: #A3B0BE; --neutral-bg: #1F2A36;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.3); --shadow-md: 0 2px 6px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.35);
+  --g-a: #6FB0C6; --g-b: #A996D0; --g-c: #D8A65C; --g-s: #8BBE90;
+  --logo-ink: #EDE6F5; --logo-mark: #E08A6E;
+}
+
+/* white initials need 4.5:1 on each */
+:root { --av-1: #13627A; --av-2: #6B4FA0; --av-3: #A0522D; --av-4: #2F6B3B; --av-5: #8A3B5C; --av-6: #3A57A3; --av-7: #7A5B12; --av-8: #4A5868; }

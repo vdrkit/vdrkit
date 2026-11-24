@@ -1,0 +1,27 @@
+# Only sources go into the build context: no installed packages (Windows symlinks), build output, local databases,
+# test results or secrets.
+**/node_modules
+**/dist
+**/.next
+**/.next-*
+**/.turbo
+**/.dev-db*
+**/test-results
+**/playwright-report
+**/coverage
+**/*.log
+.git
+.github
+# Every .env file, in any folder: Next.js copies the env files it loads into the standalone output, which becomes
+# /app/web in the image, so an apps/dataroom/.env.local would otherwise be published with it.
+**/.env
+**/.env.*
+!.env.example
+design
+docker/smoke
+apps/server/data
+CREDENTIALS.md
+credentials.md
+# Backups of a Compose install run from a checkout, and the drill folders: never in the build context.
+backups
+.drill

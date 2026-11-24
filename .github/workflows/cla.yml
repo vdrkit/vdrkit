@@ -1,0 +1,49 @@
+# CLA Assistant; signatures go to vdrkit/cla-signatures via CLA_SIGNATURES_TOKEN
+# never add actions/checkout here: pull_request_target has secrets, also for forks
+name: CLA
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_target:
+    types: [opened, closed, synchronize]
+
+permissions:
+  actions: write
+  contents: read
+  pull-requests: write
+  statuses: write
+
+jobs:
+  cla:
+    name: Contributor licence agreement
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    # phrase must match custom-pr-sign-comment
+    if: >-
+      github.event_name == 'pull_request_target' ||
+      (github.event.issue.pull_request &&
+        (github.event.comment.body == 'recheck' ||
+         github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA'))
+    steps:
+      - name: Check signatures
+        uses: contributor-assistant/github-action@ca4a40a7d1004f18d9960b404b97e5f30a505a08 # v2.6.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.CLA_SIGNATURES_TOKEN }}
+        with:
+          path-to-document: https://github.com/vdrkit/vdrkit/blob/main/CLA.md
+          path-to-signatures: signatures/version1/cla.json
+          branch: main
+          remote-organization-name: vdrkit
+          remote-repository-name: cla-signatures
+          allowlist: dependabot[bot],renovate[bot],github-actions[bot]
+          lock-pullrequest-aftermerge: false
+          custom-notsigned-prcomment: >-
+            Thank you for your contribution. Before we can merge it, each author must sign the VDRkit
+            [Contributor Licence Agreement](https://github.com/vdrkit/vdrkit/blob/main/CLA.md) once.
+            Read it, then post the sentence below as a comment on this pull request.
+          custom-pr-sign-comment: I have read the CLA Document and I hereby sign the CLA
+          custom-allsigned-prcomment: Every author of this pull request has signed the CLA. Thank you.
+          create-file-commit-message: Create the CLA signatures file
+          signed-commit-message: "$contributorName signed the CLA in $owner/$repo#$pullRequestNo"

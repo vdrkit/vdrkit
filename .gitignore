@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.turbo/
+*.log
+.env
+.env.*
+!.env.example
+coverage/
+
+# Development data: PGlite databases and local file storage (apps/server/.dev-db*)
+.dev-db*/
+
+# Install folders of the operations drills (docker/drill)
+.drill/
+
+# Backups of a Compose install run from a checkout (BACKUP_DIR, default ./backups): database dumps in clear text
+/backups/

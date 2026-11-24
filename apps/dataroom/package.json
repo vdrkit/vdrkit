@@ -1,0 +1,39 @@
+{
+  "name": "@vdrkit/dataroom",
+  "version": "1.0.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/next.mjs dev",
+    "build": "next build",
+    "start": "node scripts/next.mjs start",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src e2e playwright.config.ts next.config.ts",
+    "test": "playwright test",
+    "test:e2e:firefox": "node scripts/e2e-browser.mjs firefox",
+    "test:e2e:webkit": "node scripts/e2e-browser.mjs webkit",
+    "test:e2e:edge": "node scripts/e2e-browser.mjs edge",
+    "test:e2e:browsers": "node scripts/e2e-browser.mjs all",
+    "api:types": "node scripts/generate-api-types.mjs"
+  },
+  "dependencies": {
+    "@noble/hashes": "2.4.0",
+    "next": "16.4.5",
+    "openapi-fetch": "0.17.0",
+    "qrcode-generator": "1.4.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.10.2",
+    "@playwright/test": "1.63.0",
+    "@types/node": "22.10.7",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "modern-screenshot": "4.7.0",
+    "mupdf": "1.28.1",
+    "openapi-typescript": "7.13.0",
+    "typescript": "5.7.3"
+  }
+}

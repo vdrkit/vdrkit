@@ -1,0 +1,35 @@
+{
+  "name": "@vdrkit/core",
+  "version": "1.0.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src",
+    "test": "vitest run",
+    "test:pg": "node test/check-pg-url.mjs && vitest run"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.2.17",
+    "@types/node": "22.10.7",
+    "@types/pg": "8.11.10",
+    "pg": "8.13.1",
+    "typescript": "5.7.3",
+    "vite": "6.4.5",
+    "vitest": "4.1.12"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "migrations"
+  ]
+}

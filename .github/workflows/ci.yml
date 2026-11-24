@@ -1,0 +1,145 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+  NEXT_TELEMETRY_DISABLED: "1"
+  # no real email from CI
+  SMTP_HOST: ""
+  SMTP_URL: ""
+  MAIL_FROM: ""
+
+jobs:
+  check:
+    name: Typecheck and tests on PGlite
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - run: corepack enable && corepack prepare pnpm@9.15.4 --activate
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Licence headers (SPDX)
+        run: node scripts/check-spdx.mjs
+      - name: Smoke test and drill guards (no Docker)
+        run: node --test docker/throwaway.test.mjs
+      - name: Build the core
+        run: pnpm --filter @vdrkit/core build
+      - name: Typecheck every package
+        run: pnpm turbo run typecheck
+      - name: Lint every package
+        run: pnpm turbo run lint
+      - name: Core tests (PGlite)
+        run: pnpm --filter @vdrkit/core exec vitest run --maxWorkers=4
+      - name: Server tests (PGlite)
+        run: pnpm --filter @vdrkit/server exec vitest run --maxWorkers=4
+
+  postgres:
+    name: Tests on Postgres 17
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: vdrkit_test
+        ports: ["55432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgres://postgres:vdrkit_test@127.0.0.1:55432/postgres
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - run: corepack enable && corepack prepare pnpm@9.15.4 --activate
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Build the core
+        run: pnpm --filter @vdrkit/core build
+      - name: Core tests (Postgres 17)
+        run: pnpm --filter @vdrkit/core test:pg --maxWorkers=4
+      - name: Server tests (Postgres 17)
+        run: pnpm --filter @vdrkit/server test:pg --maxWorkers=4
+
+  web:
+    name: Next.js build and Playwright
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - run: corepack enable && corepack prepare pnpm@9.15.4 --activate
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Build the core and the server
+        run: pnpm --filter @vdrkit/core build && pnpm --filter @vdrkit/server build
+      - name: Next.js production build
+        run: pnpm --filter @vdrkit/dataroom build
+      - name: Install Chromium for Playwright
+        run: pnpm --filter @vdrkit/dataroom exec playwright install --with-deps chromium
+      - name: Playwright (development servers, two workers)
+        run: pnpm --filter @vdrkit/dataroom exec playwright test --workers=2
+      - name: Playwright (production build)
+        run: pnpm --filter @vdrkit/dataroom exec playwright test --workers=2
+        env:
+          E2E_PROD: "1"
+      - name: Keep the Playwright traces of failed tests
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-results
+          path: apps/dataroom/test-results
+          retention-days: 7
+
+  image:
+    name: Production image and Compose smoke test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - run: corepack enable && corepack prepare pnpm@9.15.4 --activate
+      - name: Build the image
+        run: docker build --build-arg VDRKIT_VERSION=0.0.1-ci.${{ github.run_number }} -t vdrkit:smoke .
+      - name: Image size
+        run: docker image ls vdrkit:smoke
+      - name: Install (for the smoke test's browser)
+        run: pnpm install --frozen-lockfile
+      - name: Install Chromium for Playwright
+        run: pnpm --filter @vdrkit/dataroom exec playwright install --with-deps chromium
+      - name: Compose smoke test (setup, sign-in, upload, view)
+        # ClamAV mirror often blocks cloud runners
+        run: node docker/smoke/smoke.mjs
+        env:
+          VDRKIT_IMAGE: vdrkit
+          VDRKIT_TAG: smoke
+          SMOKE_CLAMAV: "0"
+          SMOKE_DIR: ${{ runner.temp }}/vdrkit-smoke
+      - name: Restore drill (back up, destroy, restore into a fresh installation, compare)
+        run: node docker/drill/restore-drill.mjs
+        env:
+          VDRKIT_IMAGE: vdrkit
+          VDRKIT_TAG: smoke
+          DRILL_DIR: ${{ runner.temp }}/vdrkit-restore-drill

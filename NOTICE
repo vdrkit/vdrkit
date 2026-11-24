@@ -1,0 +1,22 @@
+VDRkit
+Copyright (C) 2026 Shibula (Pty) Ltd
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General
+Public License, version 3 only (AGPL-3.0-only), as published by the Free Software Foundation. It is distributed
+without any warranty. See the LICENSE file for the full text.
+
+Contributions are accepted under the VDRkit Contributor Licence Agreement (CLA.md).
+
+Third-party software
+--------------------
+VDRkit depends on open-source packages that keep their own copyright and licences. They are listed in the
+package.json files and pnpm-lock.yaml, and each package ships its licence (and any NOTICE file of its own) in its
+folder under node_modules, including in the Docker images. To list them with their licences, run:
+
+    pnpm licenses list --prod
+
+The server bundles the Noto Sans font (apps/server/fonts), Copyright 2022 The Noto Project Authors, under the SIL Open
+Font License 1.1 (apps/server/fonts/OFL.txt). It is used for NDA PDFs and the watermark of downloaded PDFs.
+
+The Docker Compose setup also runs separate images that are not part of VDRkit and keep their own licences:
+PostgreSQL (with pgvector), Caddy, ClamAV and Gotenberg.

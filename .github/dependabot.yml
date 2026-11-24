@@ -1,0 +1,36 @@
+# Weekly, grouped: a few pull requests a week, not one per package.
+# Gotenberg and ClamAV read untrusted uploads, so don't let their updates wait.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule: { interval: weekly, day: monday }
+    open-pull-requests-limit: 5
+    groups:
+      npm-minor-and-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+      npm-major:
+        patterns: ["*"]
+        update-types: [major]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly, day: monday }
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: docker
+    directory: /
+    schedule: { interval: weekly, day: monday }
+    groups:
+      dockerfile:
+        patterns: ["*"]
+
+  - package-ecosystem: docker-compose
+    directories: [/, /docker/smoke]
+    schedule: { interval: weekly, day: monday }
+    groups:
+      compose-images:
+        patterns: ["*"]

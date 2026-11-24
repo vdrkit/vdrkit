@@ -1,0 +1,63 @@
+/* Scoped to .b2, clear of the global .opt, .tin, .chk and .tree rules. */
+.b2.one { width: 100%; max-width: 880px; display: flex; flex-direction: column; gap: 20px; }
+.b2 .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; padding: 4px 16px 16px; }
+.b2 .fld { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.b2 .fld.wide2 { grid-column: 1 / -1; }
+.b2 .fld > span:first-child, .b2 .fld > .lab { font-size: 12.5px; font-weight: 600; }
+.b2 .fld > span i { font-style: normal; font-weight: 400; color: var(--muted); }
+.b2 .tin, .b2 .tsel { border: 1px solid var(--field-line); background: var(--surface); color: var(--fg); border-radius: 9px; font: 500 13.5px var(--font); padding: 0 10px; height: 36px; width: 100%; }
+.b2 .tin:focus-visible, .b2 .tsel:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.b2 .tin[aria-invalid="true"] { border-color: var(--danger); }
+.b2 .hint { font-size: 12px; line-height: 17px; color: var(--muted); margin: 0; font-weight: 400; }
+.b2 .hint.err { color: var(--danger); }
+.b2 .logo-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.b2 .logo-tile { width: 48px; height: 48px; border-radius: 10px; background: var(--fg); color: var(--surface); display: grid; place-items: center; font-weight: 700; font-size: 16px; flex: none; overflow: hidden; }
+.b2 .logo-tile.img { background: #FFFFFF; border: 1px solid var(--line); padding: 4px; }
+.b2 .logo-tile.img.dark { background: #151D26; border-color: #2E3F52; }
+.b2 .logo-tile img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+.b2 .opts { display: grid; gap: 8px; padding: 4px 16px 16px; }
+.b2 .opt { display: flex; gap: 10px; align-items: flex-start; text-align: left; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 11px 12px; cursor: pointer; font: inherit; color: var(--fg); width: 100%; }
+.b2 .opt:hover { border-color: var(--line-strong); }
+.b2 .opt:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.b2 .opt[aria-checked="true"] { border-color: var(--accent); background: var(--accent-tint); box-shadow: inset 0 0 0 1px var(--accent); }
+.b2 .opt .rd { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--field-line); flex: none; margin-top: 2px; display: grid; place-items: center; background: var(--surface); }
+.b2 .opt[aria-checked="true"] .rd { border-color: var(--accent); }
+.b2 .opt[aria-checked="true"] .rd::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.b2 .opt b { display: block; font-size: 13.5px; line-height: 19px; font-weight: 700; }
+.b2 .opt span { display: block; font-size: 12.5px; line-height: 17px; color: var(--muted); margin-top: 2px; }
+.b2 .sub2 { margin: 0 16px 16px; padding: 12px 14px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
+.b2 .tree { columns: 2; column-gap: 24px; margin: 0; padding: 0; list-style: none; font-size: 13px; line-height: 22px; }
+.b2 .tree .n { font: 500 12px var(--mono); color: var(--muted); display: inline-block; min-width: 24px; }
+.b2 .tree small { color: var(--muted); font-size: smaller; }
+.b2 .chk { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 19px; cursor: pointer; }
+.b2 .chk input { margin: 2px 0 0; accent-color: var(--accent); }
+.b2 .chk small { display: block; color: var(--muted); font-size: 12px; }
+.b2 .adm { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--line); font-size: 13.5px; overflow-wrap: anywhere; }
+.b2 .adm .avatar { width: 30px; height: 30px; font-size: 11px; }
+.b2 .adm small { display: block; color: var(--muted); font-size: 12px; }
+.b2 .addadm { display: flex; gap: 8px; padding: 12px 16px 16px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.b2 .addadm .tin { flex: 1 1 260px; width: auto; }
+.b2 .tz { position: relative; }
+.b2 .tz-list { position: absolute; z-index: 25; left: 0; right: 0; top: calc(100% + 4px); max-height: 260px; overflow-y: auto; margin: 0; padding: 4px; list-style: none; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 10px; box-shadow: var(--shadow-md); }
+.b2 .tz-list li { display: flex; justify-content: space-between; gap: 12px; padding: 7px 10px; border-radius: 7px; font-size: 13.5px; cursor: pointer; }
+.b2 .tz-list li span { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+.b2 .tz-list li[aria-selected="true"] { background: var(--accent-tint); color: var(--accent-text); }
+.b2 .tz-list li.none { color: var(--muted); cursor: default; }
+/* The slot holds the sticky bar's height, so the bar never floats. */
+.b2.bar-slot { width: 100%; max-width: 880px; display: flex; flex-direction: column; gap: 8px; }
+.b2 .cbar { width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; background: var(--fg); color: var(--surface); border-radius: 12px; padding: 10px 10px 10px 16px; box-shadow: var(--shadow-md); }
+.b2 .cbar .grow { flex: 1; min-width: 200px; font-size: 13px; line-height: 18px; }
+.b2 .cbar .grow b { display: block; font-size: 14px; }
+.b2 .cbar .grow span { opacity: .75; }
+.b2 .cbar .btn.quiet { background: transparent; color: var(--surface); border-color: color-mix(in srgb, var(--surface) 35%, transparent); }
+.b2 .cbar .btn.primary { background: var(--surface); color: var(--fg); }
+.b2 .b2-fail { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--danger-bg); color: var(--danger); font-size: 13px; line-height: 18px; border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent); }
+.side .org img { display: block; height: 36px; width: auto; max-width: 180px; }
+.side .org .org-dark { display: none; }
+:root[data-theme="dark"] .side .org .org-dark { display: block; }
+:root[data-theme="dark"] .side .org .org-light { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .side .org .org-dark { display: block; }
+  :root:not([data-theme="light"]) .side .org .org-light { display: none; }
+}
+@media (max-width: 640px) { .b2 .fields { grid-template-columns: minmax(0, 1fr); } .b2 .tree { columns: 1; } }

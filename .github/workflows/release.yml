@@ -1,0 +1,147 @@
+name: Release
+
+# A tag v1.2.3 on a commit of main builds the image, runs the Compose smoke test on it, pushes it as
+# ghcr.io/<owner>/vdrkit:1.2.3 and opens the GitHub release. There is no "latest" tag: an installation names the
+# version it runs.
+#
+# Two jobs, so the token that can write packages and releases never meets a dependency's install script: "build"
+# installs and tests with read access only and hands the tested image over as an artifact; "publish" checks out
+# nothing, installs nothing, loads that image, checks it is the one tested, and pushes it.
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+  NEXT_TELEMETRY_DISABLED: "1"
+  # no real email from CI
+  SMTP_HOST: ""
+  SMTP_URL: ""
+  MAIL_FROM: ""
+
+jobs:
+  build:
+    name: Build and test the image
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      image: ${{ steps.version.outputs.image }}
+      id: ${{ steps.saved.outputs.id }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # every branch, so the check below can see main
+          fetch-depth: 0
+          persist-credentials: false
+      - name: The tagged commit must be on main
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Tag $GITHUB_REF_NAME points at $GITHUB_SHA, which is not on main. Merge first, then tag the merged commit."
+            exit 1
+          fi
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - run: corepack enable && corepack prepare pnpm@9.15.4 --activate
+      - name: The tag must match the version in the code
+        id: version
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          for f in apps/server/package.json apps/dataroom/package.json packages/core/package.json; do
+            in_code=$(node -p "require('./$f').version")
+            if [ "$in_code" != "$version" ]; then
+              echo "::error::Tag $GITHUB_REF_NAME does not match version $in_code in $f."
+              exit 1
+            fi
+          done
+          in_example=$(sed -n 's/^VDRKIT_TAG=//p' .env.example)
+          if [ "$in_example" != "$version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match VDRKIT_TAG=$in_example in .env.example, which the quick start uses."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/vdrkit" >> "$GITHUB_OUTPUT"
+      - name: Build the image
+        run: >
+          docker build
+          --build-arg VDRKIT_VERSION=${{ steps.version.outputs.version }}
+          --label org.opencontainers.image.revision=${{ github.sha }}
+          --label org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          -t ${{ steps.version.outputs.image }}:${{ steps.version.outputs.version }} .
+      - name: Install (for the smoke test's browser)
+        run: pnpm install --frozen-lockfile
+      - name: Install Chromium for Playwright
+        run: pnpm --filter @vdrkit/dataroom exec playwright install --with-deps chromium
+      - name: Compose smoke test on the image that will be published
+        # ClamAV mirror often blocks cloud runners
+        run: node docker/smoke/smoke.mjs
+        env:
+          VDRKIT_IMAGE: ${{ steps.version.outputs.image }}
+          VDRKIT_TAG: ${{ steps.version.outputs.version }}
+          SMOKE_CLAMAV: "0"
+          SMOKE_DIR: ${{ runner.temp }}/vdrkit-smoke
+      - name: Save the tested image
+        id: saved
+        run: |
+          ref="${{ steps.version.outputs.image }}:${{ steps.version.outputs.version }}"
+          echo "id=$(docker image inspect --format '{{.Id}}' "$ref")" >> "$GITHUB_OUTPUT"
+          docker save "$ref" | gzip > "$RUNNER_TEMP/vdrkit-image.tar.gz"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: vdrkit-image
+          path: ${{ runner.temp }}/vdrkit-image.tar.gz
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: error
+
+  publish:
+    name: Publish the tested image and open the release
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      actions: read
+      contents: write
+      packages: write
+    env:
+      REF: ${{ needs.build.outputs.image }}:${{ needs.build.outputs.version }}
+      VERSION: ${{ needs.build.outputs.version }}
+    steps:
+      # gh rather than a download action, so this job runs no code but the runner's own tools
+      - name: Load the image the build job tested
+        run: |
+          gh run download "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --name vdrkit-image --dir "$RUNNER_TEMP/image"
+          gunzip -c "$RUNNER_TEMP/image/vdrkit-image.tar.gz" | docker load
+          id=$(docker image inspect --format '{{.Id}}' "$REF")
+          if [ "$id" != "${{ needs.build.outputs.id }}" ]; then
+            echo "::error::The loaded image $id is not the one the build job tested (${{ needs.build.outputs.id }})."
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push the image
+        run: |
+          echo "$GH_TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker push "$REF"
+          docker image inspect --format '{{index .RepoDigests 0}}' "$REF"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Open the GitHub release
+        # a version with a suffix, such as 1.1.0-rc.1, is marked as a pre-release on GitHub
+        run: |
+          prerelease=""
+          case "$VERSION" in *-*) prerelease="--prerelease" ;; esac
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --verify-tag $prerelease --title "VDRkit $VERSION" \
+            --notes "Image: \`$REF\`. What changed is in [CHANGELOG.md](${{ github.server_url }}/${{ github.repository }}/blob/$GITHUB_REF_NAME/CHANGELOG.md); how to upgrade is in [docs/install.md](${{ github.server_url }}/${{ github.repository }}/blob/$GITHUB_REF_NAME/docs/install.md)."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
